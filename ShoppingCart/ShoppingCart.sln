@@ -7,7 +7,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Microservices", "Microservi
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "APIGateway", "APIGateway", "{021E786A-7A2E-4F08-9F41-C9CA57FB673A}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Shipping", "Shipping\Shipping.csproj", "{DE34795C-266F-471F-9F13-3705C9DBC70D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Shipping", "Shipping\Shipping\Shipping.csproj", "{DE34795C-266F-471F-9F13-3705C9DBC70D}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Bff.Shopping", "Bff.Shopping", "{21257FC5-EFCE-4CBA-9D85-B8CD9E9A77A9}"
 EndProject
