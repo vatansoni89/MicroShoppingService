@@ -1,8 +1,5 @@
 #See https://aka.ms/containerfastmode to understand how Visual Studio uses this Dockerfile to build your images for faster debugging.
 
-#Depending on the operating system of the host machines(s) that will build or run the containers, the image specified in the FROM statement may need to be changed.
-#For more information, please see https://aka.ms/containercompat
-
 FROM mcr.microsoft.com/dotnet/aspnet:6.0 AS base
 WORKDIR /app
 EXPOSE 80
@@ -10,10 +7,12 @@ EXPOSE 443
 
 FROM mcr.microsoft.com/dotnet/sdk:6.0 AS build
 WORKDIR /src
-COPY ["Shipping/Shipping.csproj", "Shipping/"]
-RUN dotnet restore "Shipping/Shipping.csproj"
+COPY ["Shipping/Shipping/Shipping.csproj", "Shipping/Shipping/"]
+COPY ["Infrastructure/EventBus/EventBus.csproj", "Infrastructure/EventBus/"]
+COPY ["Infrastructure/Logging/Logging.csproj", "Infrastructure/Logging/"]
+RUN dotnet restore "Shipping/Shipping/Shipping.csproj"
 COPY . .
-WORKDIR "/src/Shipping"
+WORKDIR "/src/Shipping/Shipping"
 RUN dotnet build "Shipping.csproj" -c Release -o /app/build
 
 FROM build AS publish

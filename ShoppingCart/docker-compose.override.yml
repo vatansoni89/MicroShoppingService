@@ -1,0 +1,49 @@
+version: '3.4'
+
+services:
+ shippingdb:
+   container_name: shippingdb
+   restart: always
+   ports:
+       - "27017:27017"
+   volumes:
+       - mongo_data:/data/db
+
+ rabbitmq:
+   container_name: rabbitmq
+   restart: always
+   ports:
+       - "5672:5672"
+       - "15672:15672"
+
+ shipping:
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development 
+      - "DatabaseSettings:ConnectionString=mongodb://shippingdb:27017"
+      - "EventBusSettings:HostAddress=amqp://guest:guest@rabbitmq:5672"
+      - "ElasticConfiguration:Uri=http://elasticsearch:9200"
+    depends_on:
+      - shippingdb
+      - rabbitmq
+    ports:
+      - "8000:80"
+
+ elasticsearch:
+    container_name: elasticsearch
+    environment:
+        - xpack.monitoring.enabled=true
+        - xpack.watcher.enabled=false
+        - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+        - discovery.type=single-node
+    ports:
+        - "9200:9200"
+    volumes:
+        - elasticsearch-data:/usr/share/elasticsearch/data   
+ kibana:
+    container_name: kibana
+    environment:        
+        - ELASTICSEARCH_URL=http://elasticsearch:9200
+    depends_on:
+        - elasticsearch
+    ports:
+        - "5601:5601"  
