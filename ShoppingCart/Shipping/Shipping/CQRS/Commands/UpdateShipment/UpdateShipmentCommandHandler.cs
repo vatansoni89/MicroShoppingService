@@ -5,7 +5,7 @@ using Shipping.Entities;
 using Shipping.Exceptions;
 using Shipping.Repositories.Interfaces;
 
-namespace Shipping.Features.Shipments.Commands.UpdateShipment
+namespace Shipping.CQRS.Commands.UpdateShipment
 {
     public class UpdateShipmentCommandHandler : IRequestHandler<UpdateShipmentCommand, string>
     {

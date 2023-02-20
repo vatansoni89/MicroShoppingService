@@ -1,7 +1,7 @@
 ﻿using EventBus.Events;
 using MediatR;
 
-namespace Shipping.Features.Shipments.Commands.UpdateShipment
+namespace Shipping.CQRS.Commands.UpdateShipment
 {
     public class UpdateShipmentCommand : IRequest<string>
     {

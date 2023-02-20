@@ -1,6 +1,6 @@
 ﻿using FluentValidation;
 
-namespace Shipping.Features.Shipments.Commands.OrderShipment
+namespace Shipping.CQRS.Commands.OrderShipment
 {
     public class OrderShipmentCommandValidator : AbstractValidator<OrderShipmentCommand>
     {
