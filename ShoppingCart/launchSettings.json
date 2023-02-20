@@ -1,0 +1,19 @@
+{
+  "profiles": {
+    "Docker Compose": {
+      "commandName": "DockerCompose",
+      "commandVersion": "1.0",
+      "composeLaunchAction": "LaunchBrowser",
+      "composeLaunchServiceName": "shipping",
+      "composeLaunchUrl": "{Scheme}://localhost:{ServicePort}/swagger",
+      "serviceActions": {
+        "elasticsearch": "StartWithoutDebugging",
+        "kibana": "StartWithoutDebugging",
+        "mongo-express": "StartWithoutDebugging",
+        "rabbitmq": "StartWithoutDebugging",
+        "shipping": "StartDebugging",
+        "shippingdb": "StartWithoutDebugging"
+      }
+    }
+  }
+}
