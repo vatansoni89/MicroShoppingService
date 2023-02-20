@@ -1,8 +1,12 @@
 ﻿using AutoMapper;
+using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using Shipping.CQRS.Commands.DeleteShipment;
+using Shipping.CQRS.Commands.OrderShipment;
+using Shipping.CQRS.Commands.UpdateShipment;
+using Shipping.CQRS.Queries.GetShipment;
+using Shipping.CQRS.Queries.GetShipmentList;
 using Shipping.Entities;
-using Shipping.Features.Shipments.Commands.OrderShipment;
-using Shipping.Repositories.Interfaces;
 using System.Net;
 
 namespace Shipping.Controllers
@@ -11,14 +15,12 @@ namespace Shipping.Controllers
     [ApiController]
     public class ShipmentController : ControllerBase
     {
-        private readonly IShipmentRepository _repository;
-        private readonly IMapper _mapper;
+        private readonly IMediator _mediator;
         private readonly ILogger<ShipmentController> _logger;
 
-        public ShipmentController(IShipmentRepository repository, IMapper mapper, ILogger<ShipmentController> logger)
+        public ShipmentController(IMediator mediator, ILogger<ShipmentController> logger)
         {
-            _repository = repository ?? throw new ArgumentNullException(nameof(repository));
-            _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
+            _mediator = mediator ?? throw new ArgumentNullException(nameof(_mediator));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
@@ -26,8 +28,9 @@ namespace Shipping.Controllers
         [ProducesResponseType(typeof(IEnumerable<Shipment>), (int)HttpStatusCode.OK)]
         public async Task<ActionResult<IEnumerable<Shipment>>> GetShipments()
         {
-            var Shipments = await _repository.GetShipments();
-            return Ok(Shipments);
+            var query = new GetShipmentListQuery();
+            var shipments = await _mediator.Send(query);
+            return Ok(shipments);
         }
 
         [HttpGet("{id}", Name = "GetShipment")]
@@ -35,15 +38,15 @@ namespace Shipping.Controllers
         [ProducesResponseType(typeof(Shipment), (int)HttpStatusCode.OK)]
         public async Task<ActionResult<Shipment>> GetShipmentById(string id)
         {
-            var Shipment = await _repository.GetShipment(id);
-
-            if (Shipment == null)
+            var query = new GetShipmentQuery(id);
+            var shipment = await _mediator.Send(query);
+            if (shipment == null)
             {
                 _logger.LogError($"Shipment with id: {id}, not found.");
                 return NotFound();
             }
 
-            return Ok(Shipment);
+            return Ok(shipment);
         }
 
         [Route("[action]/{orderId}", Name = "GetShipmentByOrderId")]
@@ -51,33 +54,35 @@ namespace Shipping.Controllers
         [ProducesResponseType(typeof(Shipment), (int)HttpStatusCode.OK)]
         public async Task<ActionResult<Shipment>> GetShipmentByOrderId(string orderId)
         {
-            var Shipments = await _repository.GetShipmentByOrderId(orderId);
-            return Ok(Shipments);
+            var query = new GetShipmentListQuery(orderId);
+            var shipments = await _mediator.Send(query);
+            return Ok(shipments);
         }
 
 
         [HttpPost]
         [ProducesResponseType(typeof(Shipment), (int)HttpStatusCode.OK)]
-        public async Task<ActionResult<Shipment>> CreateShipment([FromBody] ShipmentInsert shipment)
+        public async Task<ActionResult<Shipment>> CreateShipment([FromBody] OrderShipmentCommand shipment)
         {
-            var shipmentEntity = _mapper.Map<Shipment>(shipment);
-            shipmentEntity.Id = Guid.NewGuid().ToString();
-            await _repository.CreateShipment(shipmentEntity);
-            return CreatedAtRoute("GetShipment", new { id = shipmentEntity.Id }, shipmentEntity);
+            var result = await _mediator.Send(shipment);
+            return CreatedAtRoute("GetShipment", new { id = result }, shipment);
         }
 
         [HttpPut]
         [ProducesResponseType(typeof(Shipment), (int)HttpStatusCode.OK)]
-        public async Task<IActionResult> UpdateShipment([FromBody] Shipment Shipment)
+        public async Task<IActionResult> UpdateShipment([FromBody] UpdateShipmentCommand shipment)
         {
-            return Ok(await _repository.UpdateShipment(Shipment));
+            var result = await _mediator.Send(shipment);
+            return Ok(result);
         }
 
         [HttpDelete("{id}", Name = "DeleteShipment")]
         [ProducesResponseType(typeof(Shipment), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> DeleteShipmentById(string id)
         {
-            return Ok(await _repository.DeleteShipment(id));
+            var command = new DeleteShipmentCommand(id);
+            var result = await _mediator.Send(command);
+            return Ok(result);
         }
     }
 }

@@ -17,9 +17,10 @@ services:
        - "15672:15672"
 
  shipping:
+    container_name: shipping
     environment:
       - ASPNETCORE_ENVIRONMENT=Development 
-      - "DatabaseSettings:ConnectionString=mongodb://shippingdb:27017"
+      - "DatabaseSettings:ConnectionString=mongodb://root:example@shippingdb:27017"
       - "EventBusSettings:HostAddress=amqp://guest:guest@rabbitmq:5672"
       - "ElasticConfiguration:Uri=http://elasticsearch:9200"
     depends_on:
