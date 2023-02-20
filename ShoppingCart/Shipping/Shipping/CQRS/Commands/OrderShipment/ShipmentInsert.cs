@@ -1,8 +1,7 @@
-﻿namespace Shipping.Features.Shipments.Queries.GetShipmentList
+﻿namespace Shipping.CQRS.Commands.OrderShipment
 {
-    public class ShipmentsVM
+    public class ShipmentInsert
     {
-        public string Id { get; set; }
         public string OrderId { get; set; }
         public string TrackingNumber { get; set; }
         public string TrackingUrl { get; set; }

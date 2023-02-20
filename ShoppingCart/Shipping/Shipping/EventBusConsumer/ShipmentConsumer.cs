@@ -2,7 +2,7 @@
 using EventBus.Events;
 using MassTransit;
 using MediatR;
-using Shipping.Features.Shipments.Commands.OrderShipment;
+using Shipping.CQRS.Commands.OrderShipment;
 
 namespace Shipping.EventBusConsumer
 {

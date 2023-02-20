@@ -3,7 +3,7 @@ using MediatR;
 using Shipping.Entities;
 using Shipping.Repositories.Interfaces;
 
-namespace Shipping.Features.Shipments.Commands.OrderShipment
+namespace Shipping.CQRS.Commands.OrderShipment
 {
     public class OrderShipmentCommandHandler : IRequestHandler<OrderShipmentCommand, string>
     {

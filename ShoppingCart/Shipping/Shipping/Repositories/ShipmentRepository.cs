@@ -15,7 +15,7 @@ namespace Shipping.Repositories
             _context = context ?? throw new ArgumentNullException(nameof(context));
         }
 
-        public async Task<IEnumerable<Shipment>> GetShipments()
+        public async Task<List<Shipment>> GetShipments()
         {
             return await _context
                             .Shipments
@@ -31,19 +31,19 @@ namespace Shipping.Repositories
                            .FirstOrDefaultAsync();
         }
 
-        public async Task<Shipment> GetShipmentByOrderId(string orderId)
+        public async Task<List<Shipment>> GetShipmentsByOrderId(string orderId)
         {
             return await _context
                             .Shipments
                              .Find(p => p.OrderId == orderId)
-                            .FirstOrDefaultAsync();
+                            .ToListAsync();
         }
 
         public async Task CreateShipment(Shipment shipment)
         {
             shipment.Id = Guid.NewGuid().ToString();
-            var shipmentEntity = await GetShipmentByOrderId(shipment.OrderId);
-            if (shipmentEntity != null)
+            var shipmentEntity = await GetShipmentsByOrderId(shipment.OrderId);
+            if (shipmentEntity != null && shipmentEntity.Count > 0)
                 throw new DuplicateException("Order", shipment.OrderId);
             await _context.Shipments.InsertOneAsync(shipment);
         }

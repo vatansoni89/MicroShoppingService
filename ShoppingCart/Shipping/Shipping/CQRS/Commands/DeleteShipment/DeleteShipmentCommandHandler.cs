@@ -4,7 +4,7 @@ using Shipping.Entities;
 using Shipping.Exceptions;
 using Shipping.Repositories.Interfaces;
 
-namespace Shipping.Features.Shipments.Commands.DeleteShipment
+namespace Shipping.CQRS.Commands.DeleteShipment
 {
     public class DeleteShipmentCommandHandler : IRequestHandler<DeleteShipmentCommand, string>
     {
