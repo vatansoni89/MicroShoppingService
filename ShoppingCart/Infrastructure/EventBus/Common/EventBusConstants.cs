@@ -2,6 +2,6 @@
 {
     public static class EventBusConstants
 	{
-        public const string OrderShipmentQueue = "ordershipment-queue";
+        public const string CreateShipmentQueue = "createshipment-queue";
     }
 }
