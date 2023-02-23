@@ -3,7 +3,7 @@ using Shipping.Entities;
 
 namespace Shipping.Data
 {
-    public class ShippingContextSeed
+    public class ShippingReadContextSeed
     {
         public static void SeedShipmentData(IMongoCollection<Shipment> shipmentCollection)
         {
@@ -19,33 +19,36 @@ namespace Shipping.Data
             {
                 new Shipment()
                 {
-                    Id = Guid.NewGuid().ToString(),
-                    CreatedOnUtc=DateTime.UtcNow,
+                    Id = 1,
                     DeliveryDateUtc=DateTime.UtcNow.AddDays(7),
                     ShippedDateUtc=DateTime.UtcNow,
                     OrderId="1",
                     TrackingNumber="1",
                     TrackingUrl="",
+                    CreatedOnUtc=DateTime.UtcNow,
+                    LastModifiedOnUtc=DateTime.UtcNow
                 }
                 ,new Shipment()
                 {
-                    Id = Guid.NewGuid().ToString(),
-                    CreatedOnUtc=DateTime.UtcNow,
+                    Id = 2,
                     DeliveryDateUtc=DateTime.UtcNow.AddDays(7),
                     ShippedDateUtc=DateTime.UtcNow,
                     OrderId="2",
                     TrackingNumber="2",
                     TrackingUrl="",
+                    CreatedOnUtc=DateTime.UtcNow,
+                    LastModifiedOnUtc=DateTime.UtcNow
                 }
                 ,new Shipment()
                 {
-                    Id = Guid.NewGuid().ToString(),
-                    CreatedOnUtc=DateTime.UtcNow,
+                    Id = 3,
                     DeliveryDateUtc=DateTime.UtcNow.AddDays(7),
                     ShippedDateUtc=DateTime.UtcNow,
                     OrderId="3",
                     TrackingNumber="3",
                     TrackingUrl="",
+                    CreatedOnUtc=DateTime.UtcNow,
+                    LastModifiedOnUtc=DateTime.UtcNow
                 }
             };
         }

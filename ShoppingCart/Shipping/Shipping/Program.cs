@@ -1,6 +1,9 @@
 using Logging;
+using Ordering.Infrastructure.Persistence;
 using Serilog;
+using Shipmenting.Infrastructure.Persistence;
 using Shipping;
+using Shipping.Extensions;
 
 namespace Catalog.API
 {
@@ -8,7 +11,13 @@ namespace Catalog.API
     {
         public static void Main(string[] args)
         {
-            CreateHostBuilder(args).Build().Run();
+            CreateHostBuilder(args).Build().MigrateDatabase<ShipmentWriteContext>((context, services) =>
+            {
+                var logger = services.GetService<ILogger<ShipmentWriteContextSeed>>();
+                ShipmentWriteContextSeed
+                    .SeedAsync(context, logger)
+                    .Wait();
+            }).Run();
         }
 
         public static IHostBuilder CreateHostBuilder(string[] args) =>

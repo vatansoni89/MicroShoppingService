@@ -36,7 +36,7 @@ namespace Shipping.Controllers
         [HttpGet("{id}", Name = "GetShipment")]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         [ProducesResponseType(typeof(Shipment), (int)HttpStatusCode.OK)]
-        public async Task<ActionResult<Shipment>> GetShipmentById(string id)
+        public async Task<ActionResult<Shipment>> GetShipmentById(int id)
         {
             var query = new GetShipmentQuery(id);
             var shipment = await _mediator.Send(query);
@@ -62,7 +62,7 @@ namespace Shipping.Controllers
 
         [HttpPost]
         [ProducesResponseType(typeof(Shipment), (int)HttpStatusCode.OK)]
-        public async Task<ActionResult<Shipment>> CreateShipment([FromBody] OrderShipmentCommand shipment)
+        public async Task<ActionResult<Shipment>> CreateShipment([FromBody] CreateShipmentCommand shipment)
         {
             var result = await _mediator.Send(shipment);
             return CreatedAtRoute("GetShipment", new { id = result }, shipment);
@@ -72,17 +72,17 @@ namespace Shipping.Controllers
         [ProducesResponseType(typeof(Shipment), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> UpdateShipment([FromBody] UpdateShipmentCommand shipment)
         {
-            var result = await _mediator.Send(shipment);
-            return Ok(result);
+            await _mediator.Send(shipment);
+            return Ok();
         }
 
         [HttpDelete("{id}", Name = "DeleteShipment")]
         [ProducesResponseType(typeof(Shipment), (int)HttpStatusCode.OK)]
-        public async Task<IActionResult> DeleteShipmentById(string id)
+        public async Task<IActionResult> DeleteShipmentById(int id)
         {
             var command = new DeleteShipmentCommand(id);
-            var result = await _mediator.Send(command);
-            return Ok(result);
+            await _mediator.Send(command);
+            return Ok();
         }
     }
 }

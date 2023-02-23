@@ -2,10 +2,10 @@
 
 namespace Shipping.CQRS.Commands.DeleteShipment
 {
-    public class DeleteShipmentCommand : IRequest<string>
+    public class DeleteShipmentCommand : IRequest<int>
     {
-        public string Id { get; set; }
-        public DeleteShipmentCommand(string id)
+        public int Id { get; set; }
+        public DeleteShipmentCommand(int id)
         {
             Id = id;
         }
