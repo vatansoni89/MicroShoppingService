@@ -1,13 +1,13 @@
 ﻿using EventBus.Events;
 using MediatR;
+using Shipping.CQRS.Commands.OrderShipment;
 
 namespace Shipping.CQRS.Commands.UpdateShipment
 {
-    public class UpdateShipmentCommand : IRequest<string>
+    public class UpdateShipmentCommand : CreateShipmentCommand
     {
-        public string Id { get; set; }
-        public string OrderId { get; set; }
-        public DateTime ShippedDateUtc { get; set; }
-        public DateTime CreatedOnUtc { get; set; }
+        public int Id { get; set; }
+        public DateTime? DeliveryDateUtc { get; set; }
+
     }
 }

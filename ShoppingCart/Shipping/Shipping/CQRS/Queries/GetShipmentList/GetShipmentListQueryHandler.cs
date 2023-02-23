@@ -8,10 +8,10 @@ namespace Shipping.CQRS.Queries.GetShipmentList
 {
     public class GetShipmentListQueryHandler : IRequestHandler<GetShipmentListQuery, List<Shipment>>
     {
-        private readonly IShipmentRepository _shipmentRepository;
+        private readonly IShipmentReadRepository _shipmentRepository;
         private readonly IMapper _mapper;
 
-        public GetShipmentListQueryHandler(IShipmentRepository shipmentRepository, IMapper mapper)
+        public GetShipmentListQueryHandler(IShipmentReadRepository shipmentRepository, IMapper mapper)
         {
             _shipmentRepository = shipmentRepository ?? throw new ArgumentNullException(nameof(shipmentRepository));
             _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));

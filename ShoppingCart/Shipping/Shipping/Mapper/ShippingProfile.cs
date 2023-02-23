@@ -1,8 +1,11 @@
 ﻿using AutoMapper;
-using EventBus.Events;
+using EventBus.Events.Shipment;
+using Shipping.CQRS.Commands.DeleteShipment;
 using Shipping.CQRS.Commands.OrderShipment;
 using Shipping.CQRS.Commands.UpdateShipment;
-using Shipping.CQRS.Queries.GetShipmentList;
+using Shipping.CQRS.Queries.EventHandlers.Created;
+using Shipping.CQRS.Queries.EventHandlers.Deleted;
+using Shipping.CQRS.Queries.EventHandlers.Updated;
 using Shipping.Entities;
 
 namespace Shipping.Mapper
@@ -11,20 +14,20 @@ namespace Shipping.Mapper
     {
         public ShippingProfile()
         {
-            CreateMap<Shipment, Shipment>().ReverseMap();
-            CreateMap<Entities.Shipment, ShipmentInsert>().ReverseMap();
-            CreateMap<Entities.Shipment, OrderShipmentCommand>()
-            //    .ForMember(dest => dest.OrderId, opt => opt.MapFrom(src => src.OrderId))
-            //    .ForMember(dest => dest.TrackingNumber, opt => opt.MapFrom(src => src.TrackingNumber))
-            //    .ForMember(dest => dest.TrackingUrl, opt => opt.MapFrom(src => src.TrackingUrl))
-            //    .ForMember(dest => dest.DeliveryDateUtc, opt => opt.MapFrom(src => src.DeliveryDateUtc))
-            //    .ForMember(dest => dest.ShippedDateUtc, opt => opt.MapFrom(src => src.ShippedDateUtc))
-            //    .ForMember(dest => dest.CreatedOnUtc, opt => opt.MapFrom(src => src.CreatedOnUtc))
-                .ReverseMap();
-            CreateMap<Entities.Shipment, UpdateShipmentCommand>()
-                .ReverseMap();
-
-            CreateMap<OrderShipmentCommand, OrderShipmentEvent>().ReverseMap();
+            CreateMap<Shipment, CreateShipmentCommand>().ReverseMap();
+            CreateMap<Shipment, UpdateShipmentCommand>().ReverseMap();
+            CreateMap<CreateShipmentCommand, CreateShipmentEvent>().ReverseMap();
+            CreateMap<Shipment, CreatedShipment>().ReverseMap();
+            CreateMap<Shipment, UpdatedShipment>().ReverseMap();
+            CreateMap<Shipment, DeletedShipment>().ReverseMap();
+            CreateMap<CreatedShipment, CreatedShipmentEvent>().ReverseMap();
+            CreateMap<Shipment, CreatedShipmentEvent>().ReverseMap();
+            CreateMap<UpdatedShipment, UpdatedShipmentEvent>().ReverseMap();
+            CreateMap<Shipment, UpdatedShipmentEvent>().ReverseMap();
+            CreateMap<DeletedShipment, DeletedShipmentEvent>().ReverseMap();
+            CreateMap<Shipment, DeletedShipmentEvent>().ReverseMap();
+            CreateMap<DeleteShipmentCommand, DeletedShipmentEvent>().ReverseMap();
+            CreateMap<UpdateShipmentCommand, UpdatedShipmentEvent>().ReverseMap();
         }
     }
 }
