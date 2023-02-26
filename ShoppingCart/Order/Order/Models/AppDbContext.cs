@@ -27,9 +27,6 @@ namespace Order.Models
         }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<Order>()
-                .Property(b => b.IsOrderConfirmed)
-                .HasDefaultValue(false);
         }
     }
 

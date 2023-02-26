@@ -17,8 +17,7 @@ namespace Order.Queries.Handlers
         }
         public async Task<List<OrderQueryModel>> GetAllOrder(OrderQueryModel model)
         {
-            var orders = await _db.Orders.Where(x => x.IsOrderConfirmed == model.IsOrderConfirmed 
-            && x.CustomerId == model.CustomerId).ToListAsync();
+            var orders = await _db.Orders.Where(x => x.CustomerId == model.CustomerId).ToListAsync();
 
             var result = _mapper.Map<List<OrderQueryModel>>(orders);
             return result;
@@ -26,9 +25,7 @@ namespace Order.Queries.Handlers
 
         public async Task<List<OrderQueryModel>> GetOrderById(OrderQueryModel model)
         {
-            var orders = await _db.Orders.Where(x=> x.IsOrderConfirmed == model.IsOrderConfirmed
-            && x.CustomerId== model.CustomerId 
-            && x.OrderId == model.OrderId).ToListAsync();
+            var orders = await _db.Orders.Where(x=> x.OrderId == model.OrderId).ToListAsync();
 
             var result = _mapper.Map<List<OrderQueryModel>>(orders);
             return result;

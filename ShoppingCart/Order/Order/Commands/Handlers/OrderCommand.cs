@@ -14,23 +14,20 @@ namespace Order.Commands.Handlers
         {
             var order = new Order.Models.Order
             {
-                CustomerId= model.CustomerId,
-                ProductName = model.ProductName,
-                Description = model.Description,
-                IsOrderConfirmed = model.IsOrderConfirmed,
-                Price = model.Price
+                CustomerId = model.CustomerId,
+                ProducuId = model.ProducuId
             };
             _db.Orders.Add(order);
             await _db.SaveChangesAsync();
 
-            model.OrderId= order.OrderId;
+            model.OrderId = order.OrderId;
             return model;
         }
 
-        public async Task<bool> DeleteOrderAsync(int id)
+        public async Task<bool> DeleteOrderAsync(int orderId)
         {
-            var order = _db.Orders.Find(id);
-            if (order!=null)
+            var order = _db.Orders.FirstOrDefault(x => x.OrderId == orderId);
+            if (order != null)
             {
                 _db.Remove(order);
                 await _db.SaveChangesAsync();
@@ -43,17 +40,15 @@ namespace Order.Commands.Handlers
         {
             try
             {
-                var order = new Order.Models.Order
-                {
-                    OrderId = model.OrderId,
-                    ProductName = model.ProductName,
-                    Description = model.Description,
-                    IsOrderConfirmed = model.IsOrderConfirmed,
-                    Price = model.Price
-                };
+                var order = _db.Orders.FirstOrDefault(x => x.OrderId == model.OrderId);
 
-                _db.Orders.Update(order);
-                await _db.SaveChangesAsync();
+                if (order != null)
+                {
+                    order.ProducuId = model.ProducuId;
+                    _db.Orders.Update(order);
+                    await _db.SaveChangesAsync();
+                }
+
 
                 return true;
             }
@@ -69,22 +64,18 @@ namespace Order.Commands.Handlers
             {
                 var order = new Order.Models.Order
                 {
-                    OrderId = model.OrderId,
-                    ProductName = model.ProductName,
-                    Description = model.Description,
-                    IsOrderConfirmed = model.IsOrderConfirmed,
-                    Price = model.Price
+                    OrderId = model.OrderId
                 };
 
                 var existingOrder = _db.Orders
-                    .FirstOrDefault(x=> x.CustomerId == model.CustomerId &&
+                    .FirstOrDefault(x => x.CustomerId == model.CustomerId &&
                 x.OrderId == model.OrderId);
-                existingOrder.IsOrderConfirmed= model.IsOrderConfirmed;
 
-                _db.Orders.Update(existingOrder);
-                await _db.SaveChangesAsync();
+                /*
+                 Shipping logic if success return true else false
+                 */
 
-                return true;
+                return await Task.FromResult(false);
             }
             catch (Exception)
             {

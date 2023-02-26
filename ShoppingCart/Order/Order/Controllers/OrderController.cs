@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using MediatR;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
 using Order.Commands.Interfaces;
@@ -68,12 +69,12 @@ namespace Order.Controllers
             }
         }
 
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteOrder(int id)
+        [HttpDelete("{orderId}")]
+        public async Task<IActionResult> DeleteOrder(int orderId)
         {
             try
             {
-                var isDeleted = await _orderCommand.DeleteOrderAsync(id);
+                var isDeleted = await _orderCommand.DeleteOrderAsync(orderId);
                 if (isDeleted)
                 {
                     return StatusCode(StatusCodes.Status200OK);
@@ -91,8 +92,8 @@ namespace Order.Controllers
         {
             try
             {
-                var isUpdated = await _orderCommand.ConfirmOrderAsync(orderCommand);
-                if (isUpdated)
+                var isShipped = await _orderCommand.ConfirmOrderAsync(orderCommand);
+                if (isShipped)
                 {
                     return StatusCode(StatusCodes.Status200OK);
                 }
