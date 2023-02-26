@@ -5,7 +5,11 @@ using Microsoft.AspNetCore.Mvc;
 using CustomerIdentityWebApi.CQRS.Queries.Interfaces;
 using CustomerIdentityWebApi.CQRS.Commands.Interfaces;
 using CustomerIdentityWebApi.Models;
-
+using MediatR;
+using CustomerIdentityWebApi.Database;
+using CustomerIdentityWebApi.Queries;
+using Azure;
+using CustomerIdentityWebApi.Commands;
 
 namespace CustomerIdentityWebApi.Controllers
 {
@@ -13,78 +17,131 @@ namespace CustomerIdentityWebApi.Controllers
     [ApiController]
     public class CustomerIdentityApiController : ControllerBase
     {
-        #region CQRS
-        private readonly ICustomerCommand _customerCommand;
-        private readonly ICustomerQuery _customerQuery;
-
-        public CustomerIdentityApiController(ICustomerCommand customerCommand, ICustomerQuery customerQuery)
+        private readonly IMediator _mediator;
+        public CustomerIdentityApiController(IMediator mediator)
         {
-            _customerCommand = customerCommand;
-            _customerQuery = customerQuery;
+            _mediator = mediator ?? throw new ArgumentNullException(nameof(_mediator));
         }
 
         [HttpGet]
-        public async Task<IEnumerable<CustomerQueryModel>> GetCustomers()
+        public async Task<List<Customer>> Get()
         {
-            return await _customerQuery.GetCustomersAsync();
+            return await _mediator.Send(new GetCustomerListQuery());
         }
 
         [HttpPost]
-        public async Task<IActionResult> AddCustomers(CustomerCommandModel model)
+        [ProducesResponseType(StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<ActionResult> AddCustomer(Customer customer)
         {
-            try
-            {
-                var product = await _customerCommand.AddCustomersAsync(model);
-                return StatusCode(StatusCodes.Status201Created, product);
-            }
-            catch (Exception)
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError);
-            }
+            var result = await _mediator.Send(new AddCustomerCommand(customer));
+            return StatusCode(result);
         }
 
-        [HttpPut]
-        public async Task<IActionResult> UpdateCustomers(int id,CustomerCommandModel model)
+        [HttpPut("{customerId}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<ActionResult> UpdateCustomer(int Id, Customer customer)
         {
-            try
-            {
-                var customer = await _customerCommand.UpdateCustomersAsync(id,model);
-                if(customer != null)
-                {
-                    return StatusCode(StatusCodes.Status200OK, customer);
-                }
-                else
-                {
-                    return StatusCode(StatusCodes.Status500InternalServerError);
-                }
-               
-            }
-            catch (Exception)
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError);
-            }
+            var result = await _mediator.Send(new UpdateCustomerCommand(Id, customer));
+            return StatusCode(result);
         }
 
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteCustomers(int id)
+        [HttpDelete("{customerId:int}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<ActionResult> DeleteCustomer(int Id)
         {
-            try
-            {
-                var statusId = await _customerCommand.DeleteCustomersAsync(id);
-                if(statusId==1)
-                {
-                    return StatusCode(StatusCodes.Status200OK);
-                }
-                else
-                {
-                    return StatusCode(StatusCodes.Status500InternalServerError);
-                }
-            }
-            catch (Exception)
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError);
-            }
+            var result = await _mediator.Send(new DeleteCustomerCommand(Id));
+            return StatusCode(result);
+
         }
+        #region CQRS
+        //private readonly ICustomerCommand _customerCommand;
+        //private readonly ICustomerQuery _customerQuery;
+
+
+
+        //public CustomerIdentityApiController(ICustomerCommand customerCommand, ICustomerQuery customerQuery)
+        //{
+        //    _customerCommand = customerCommand;
+        //    _customerQuery = customerQuery;
+        //}
+
+        //[HttpGet]
+        //public async Task<IEnumerable<CustomerQueryModel>> GetCustomers()
+        //{
+        //   // var response = _mediator.Send();
+        //    return await _customerQuery.GetCustomersAsync();
+        //}
+
+        //[HttpPost]
+        //public async Task<IActionResult> AddCustomers(CustomerCommandModel model)
+        //{
+        //    try
+        //    {
+        //        var response = await _customerCommand.AddCustomersAsync(model);
+        //        return StatusCode(StatusCodes.Status201Created, response);
+        //    }
+        //    catch (Exception)
+        //    {
+        //        return StatusCode(StatusCodes.Status500InternalServerError);
+        //    }
+        //}
+
+        //[HttpPut]
+        //public async Task<IActionResult> UpdateCustomers(int id,CustomerCommandModel model)
+        //{
+        //    try
+        //    {
+        //        var customer = await _customerCommand.UpdateCustomersAsync(id,model);
+        //        if(customer != null)
+        //        {
+        //            return StatusCode(StatusCodes.Status200OK, customer);
+        //        }
+        //        else
+        //        {
+        //            return StatusCode(StatusCodes.Status500InternalServerError);
+        //        }
+
+        //    }
+        //    catch (Exception)
+        //    {
+        //        return StatusCode(StatusCodes.Status500InternalServerError);
+        //    }
+        //}
+
+        //[HttpDelete("{id}")]
+        //public async Task<IActionResult> DeleteCustomers(int id)
+        //{
+        //    try
+        //    {
+        //        var statusId = await _customerCommand.DeleteCustomersAsync(id);
+        //        if(statusId==1)
+        //        {
+        //            return StatusCode(StatusCodes.Status200OK);
+        //        }
+        //        else
+        //        {
+        //            return StatusCode(StatusCodes.Status500InternalServerError);
+        //        }
+        //    }
+        //    catch (Exception)
+        //    {
+        //        return StatusCode(StatusCodes.Status500InternalServerError);
+        //    }
+        //}
+
+        //[HttpPost]
+        //public async Task<IActionResult> AuthenticateUser(LoginModel model)
+        //{
+        //    var data = await _authService.AuthenticateUser(model);
+        //    if (data != null)
+        //        return Ok(data);
+        //    else
+        //        return NotFound("User Not Found!");
+        //}
         #endregion CQRS
 
         #region API Methods without CQRS

@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Serilog;
+using Serilog.Events;
 using Serilog.Sinks.Elasticsearch;
 using System;
 
@@ -14,7 +15,9 @@ namespace Logging
                var elasticUri = context.Configuration.GetValue<string>("ElasticConfiguration:Uri");
 
                configuration
+                    .MinimumLevel.Override("Microsoft", LogEventLevel.Information)
                     .Enrich.FromLogContext()
+                    .Enrich.WithEnvironmentName()
                     .Enrich.WithMachineName()
                     .WriteTo.Debug()
                     .WriteTo.Console()

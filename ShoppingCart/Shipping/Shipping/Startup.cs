@@ -4,14 +4,17 @@ using HealthChecks.UI.Client;
 using MassTransit;
 using MediatR;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.OpenApi.Models;
+using Ordering.Infrastructure.Persistence;
 using Shipping.Behaviours;
 using Shipping.Data;
 using Shipping.Data.Interfaces;
 using Shipping.EventBusConsumer;
-using Shipping.Repositories.Interfaces;
+using Shipping.Middleware;
 using Shipping.Repositories;
+using Shipping.Repositories.Interfaces;
 using System.Reflection;
 
 namespace Shipping
@@ -32,29 +35,44 @@ namespace Shipping
             services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
             services.AddMediatR(config => config.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly()));
 
-            services.AddTransient(typeof(IPipelineBehavior<,>), typeof(UnhandledExceptionBehaviour<,>));
             services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehaviour<,>));
+            services.AddTransient<ExceptionHandlingMiddleware>();
 
-            services.AddScoped<IShippingContext, ShippingContext>();
-            services.AddScoped<IShipmentRepository, ShipmentRepository>();
+            services.AddEntityFrameworkSqlServer().AddDbContext<ShipmentWriteContext>(options =>
+                options.UseSqlServer(Configuration.GetConnectionString("ShippingConnectionString"))); ;
+
+            services.AddScoped(typeof(IAsyncRepository<>), typeof(RepositoryBase<>));
+            services.AddScoped<IShipmentWriteRepository, ShipmentWriteRepository>();
+            services.AddScoped<IShippingReadContext, ShippingReadContext>();
+            services.AddScoped<IShipmentReadRepository, ShipmentReadRepository>();
 
             // MassTransit-RabbitMQ Configuration
             services.AddMassTransit(config =>
             {
 
-                config.AddConsumer<ShipmentConsumer>();
+                config.AddConsumer<CreateShipmentConsumer>();
+                config.AddConsumer<CreatedShipmentConsumer>();
+                config.AddConsumer<UpdatedShipmentConsumer>();
+                config.AddConsumer<DeletedShipmentConsumer>();
+
                 config.UsingRabbitMq((ctx, cfg) =>
                 {
                     cfg.Host(Configuration["EventBusSettings:HostAddress"]);
-                    cfg.ReceiveEndpoint(EventBusConstants.OrderShipmentQueue, c =>
+                    cfg.ReceiveEndpoint(EventBusConstants.CreateShipmentQueue, c =>
                     {
-                        c.ConfigureConsumer<ShipmentConsumer>(ctx);
+                        c.ConfigureConsumer<CreateShipmentConsumer>(ctx);
+                        c.ConfigureConsumer<CreatedShipmentConsumer>(ctx);
+                        c.ConfigureConsumer<UpdatedShipmentConsumer>(ctx);
+                        c.ConfigureConsumer<DeletedShipmentConsumer>(ctx);
                     });
                 });
             });
 
             // General Configuration
-            services.AddScoped<ShipmentConsumer>();
+            services.AddScoped<CreateShipmentConsumer>();
+            services.AddScoped<CreatedShipmentConsumer>();
+            services.AddScoped<UpdatedShipmentConsumer>();
+            services.AddScoped<DeletedShipmentConsumer>();
 
             services.AddControllers();
             services.AddSwaggerGen(c =>
@@ -64,7 +82,8 @@ namespace Shipping
 
             services.AddHealthChecks()
                 .AddRabbitMQ(Configuration["EventBusSettings:HostAddress"], name: "RabbitMQ Health", failureStatus: HealthStatus.Degraded)
-                .AddMongoDb(Configuration["DatabaseSettings:ConnectionString"], "MongoDb Health", HealthStatus.Degraded);
+                .AddMongoDb(Configuration["DatabaseSettings:ConnectionString"], "MongoDb Health", HealthStatus.Degraded)
+                .AddDbContextCheck<ShipmentWriteContext>("Sql Health", HealthStatus.Degraded);
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -76,6 +95,7 @@ namespace Shipping
                 app.UseSwagger();
                 app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "Shipping v1"));
             }
+            app.UseMiddleware<ExceptionHandlingMiddleware>();
 
             app.UseRouting();
 
