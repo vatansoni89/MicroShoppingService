@@ -2,9 +2,13 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
-using Order.Commands.Interfaces;
+using Order.Commands.AddOrder;
+using Order.Commands.ConfirmOrder;
+using Order.Commands.DeleteOrder;
+using Order.Commands.UpdateOrder;
 using Order.Models;
-using Order.Queries.Interfaces;
+using Order.Queries.GetAllOrder;
+using Order.Queries.GetOrderById;
 
 namespace Order.Controllers
 {
@@ -12,35 +16,18 @@ namespace Order.Controllers
     [ApiController]
     public class OrderController : ControllerBase
     {
-        private readonly IOrderCommand _orderCommand;
-        private readonly IOrderQuery _orderQuery;
-
-        public OrderController(IOrderCommand orderCommand, IOrderQuery orderQuery)
+        private readonly IMediator _mediator;
+        public OrderController(IMediator mediator)
         {
-            _orderCommand = orderCommand;
-            _orderQuery = orderQuery;
-        }
-
-        [HttpGet("~/api/GetAllOrder")]
-        public async Task<IActionResult> GetAllOrder([FromQuery] OrderQueryModel orderQueryModel)
-        {
-            var result = await _orderQuery.GetAllOrder(orderQueryModel);
-            return Ok(result);
-        }
-
-        [HttpGet("~/api/GetOrderById")]
-        public async Task<IActionResult> GetOrderById([FromQuery] OrderQueryModel orderQueryModel)
-        {
-            var result = await _orderQuery.GetOrderById(orderQueryModel);
-            return Ok(result);
+            _mediator = mediator;
         }
 
         [HttpPost]
-        public async Task<IActionResult> PlaceOrder(OrderCommandModel orderCommand)
+        public async Task<IActionResult> PlaceOrder(AddOrderCommand orderCommand)
         {
             try
             {
-                var order = await _orderCommand.AddOrderAsync(orderCommand);
+                var order = await _mediator.Send(orderCommand);
                 return StatusCode(StatusCodes.Status200OK, order);
             }
             catch (Exception)
@@ -52,11 +39,11 @@ namespace Order.Controllers
         }
 
         [HttpPut]
-        public async Task<IActionResult> UpdateOrder(OrderCommandModel orderCommand)
+        public async Task<IActionResult> UpdateOrder(UpdateOrderCommand updateOrderCommand)
         {
             try
             {
-                var isUpdated = await _orderCommand.UpdateOrderAsync(orderCommand);
+                var isUpdated = await _mediator.Send(updateOrderCommand);
                 if (isUpdated)
                 {
                     return StatusCode(StatusCodes.Status200OK);
@@ -69,12 +56,12 @@ namespace Order.Controllers
             }
         }
 
-        [HttpDelete("{orderId}")]
-        public async Task<IActionResult> DeleteOrder(int orderId)
+        [HttpDelete]
+        public async Task<IActionResult> DeleteOrder(DeleteOrderCommand deleteOrderCommand)
         {
             try
             {
-                var isDeleted = await _orderCommand.DeleteOrderAsync(orderId);
+                var isDeleted = await _mediator.Send(deleteOrderCommand);
                 if (isDeleted)
                 {
                     return StatusCode(StatusCodes.Status200OK);
@@ -88,11 +75,11 @@ namespace Order.Controllers
         }
 
         [HttpPut("~/api/ConfirmOrder")]
-        public async Task<IActionResult> ConfirmOrder(OrderCommandModel orderCommand)
+        public async Task<IActionResult> ConfirmOrder(ConfirmOrderCommand confirmOrderCommand)
         {
             try
             {
-                var isShipped = await _orderCommand.ConfirmOrderAsync(orderCommand);
+                var isShipped = await _mediator.Send(confirmOrderCommand);
                 if (isShipped)
                 {
                     return StatusCode(StatusCodes.Status200OK);
@@ -103,6 +90,20 @@ namespace Order.Controllers
             {
                 return StatusCode(StatusCodes.Status500InternalServerError);
             }
+        }
+
+        [HttpGet("~/api/GetAllOrder")]
+        public async Task<IActionResult> GetAllOrder([FromQuery] GetAllOrderQuery getAllOrderQuery)
+        {
+            var result = await _mediator.Send(getAllOrderQuery);
+            return Ok(result);
+        }
+
+        [HttpGet("~/api/GetOrderById")]
+        public async Task<IActionResult> GetOrderById([FromQuery] GetOrderByIdQuery getOrderByIdQuery)
+        {
+            var result = await _mediator.Send(getOrderByIdQuery);
+            return Ok(result);
         }
     }
 }

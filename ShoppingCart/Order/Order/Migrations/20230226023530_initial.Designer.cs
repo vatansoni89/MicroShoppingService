@@ -11,7 +11,7 @@ using Order.Models;
 namespace Order.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20230226011703_initial")]
+    [Migration("20230226023530_initial")]
     partial class initial
     {
         /// <inheritdoc />

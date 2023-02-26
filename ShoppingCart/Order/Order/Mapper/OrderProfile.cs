@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Order.Models;
+using Order.Queries.GetAllOrder;
 
 namespace Order.Mapper
 {
@@ -8,6 +9,7 @@ namespace Order.Mapper
         public OrderProfile() 
         {
             CreateMap<Models.Order, OrderQueryModel>().ReverseMap();
+            CreateMap<GetOrderQueryResponse, Order.Models.Order>().ReverseMap();
         }
     }
 }

@@ -1,9 +1,5 @@
 using Microsoft.EntityFrameworkCore;
-using Order.Commands.Handlers;
-using Order.Commands.Interfaces;
 using Order.Models;
-using Order.Queries.Handlers;
-using Order.Queries.Interfaces;
 using System.Reflection;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -20,8 +16,6 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddMediatR(config => config.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly()));
 
-builder.Services.AddScoped<IOrderCommand, OrderCommand>();
-builder.Services.AddScoped<IOrderQuery, OrderQuery>();
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
 var app = builder.Build();
